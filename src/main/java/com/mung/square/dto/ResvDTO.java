@@ -29,15 +29,14 @@ public class ResvDTO {
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 예약 수정 시간
     barcount INT,                                   -- 바 수 (바 선택 갯수)
     */
-    private int resv_num;
+    private int resvnum;
     private String user_id;
-    private String branch_name;
-    private String status;
-    private String resv_date;
-    private Timestamp created_at;
-    private Timestamp start_time;
-    private Timestamp end_time;
-    private int barcount;
+    private String branch_name;//o
+    private String status;//o
+    private Timestamp created_at;//o
+    private Timestamp start_time;//o
+    private Timestamp end_time;//o
+    private int barcount;//o
     /*
      * resv_num INT PRIMARY KEY,
     user_id VARCHAR(50) NOT NULL,

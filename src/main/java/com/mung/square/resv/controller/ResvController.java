@@ -4,6 +4,7 @@ import com.mung.square.dto.ResvDTO;
 import com.mung.square.map.service.MapService;
 import com.mung.square.resv.service.ResvService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,7 @@ public class ResvController {
     @PostMapping("/reserve")
     @ResponseBody
     public ResponseEntity<String> reserve(@RequestBody ResvDTO resvDTO) {
+
         if (resvService.isReservationAvailable(resvDTO)) {
             resvService.createReservation(resvDTO);
             return ResponseEntity.ok("Reservation successful.");

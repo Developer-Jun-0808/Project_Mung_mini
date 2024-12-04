@@ -21,6 +21,7 @@
 <body>
     <div class="resv_wrap" layout:fragment="content">
 
+        <!-- html -->
         <div class="resv_container">
             <div class="wrap">
                 <div>
@@ -80,6 +81,14 @@
                 end: -1,
                 endIndex: -1,
             };
+
+          /*  // 시간을 HH:mm 형식으로 변환하는 함수
+            function formatTime(hour) {
+                const h = Math.floor(hour); // 시간 부분 (정수 부분)
+                const m = (hour % 1) * 60; // 분 부분 (소수점 이하 * 60)
+                return `${String(h).padStart(2, '0')}:${String(Math.round(m)).padStart(2, '0')}`;
+            }*/
+
             let selectedDate = new Date();
             document.getElementById('reservation-form').addEventListener('submit', function (event) {
                 event.preventDefault();
@@ -87,26 +96,50 @@
                 const phone = document.getElementById('phone').value;
                 const date = document.getElementById('date').value;
                 const loc = document.getElementById('location').value;
-
-                if (name && phone && date && loc) {
-
+                const startdate = document.getElementById('date').value + ' ' + sdate;  // You will have sdate from your selection
+                const enddate = document.getElementById('date').value + ' ' + edate;    // You will have edate from your selection
+                    if (name && phone && date && loc && startdate && enddate) {
+                        $.ajax({
+                            url:'/mung/kakaopay',
+                            method: 'POST',
+                            data: {
+                                name: name,
+                                phone: phone,
+                                date: date,
+                                location: loc,
+                                startdate: startdate,
+                                enddate: enddate,
+                                barcount:barcount
+                            },
+                            success: function(response) {
+                                console.log("Reservation successful", response);
+                                // Redirect
+                                alert('예약이 완료되었습니다.');
+                                location.href = "/mung/kakaopay";  // Example redirection after success
+                            },
+                            error: function(error) {
+                                console.log("Error:", error);
+                                alert('예약실패');
+                            }
+                        });
+                    }
+                    else {
+                        alert('모든 필드를 입력해 주세요.');
+                    }
                     //ajax -> 데이터 전송
+                    console.log("$1341414")
+                    console.log("날짜:"+document.getElementById('date').value)
+                    console.log(startdate)
+                    console.log(enddate)
+                    console.log(barcount);
+
                     //type : post
                     // success
                     // -> post mapping 컨트롤러 작동
                     // 컨트롤러에서 insert 문 작동되도록 하고
-
-
-                    location.href = "/mung/kakaopay";
-
+                    /*location.href = "/mung/kakaopay";*/
                     /*alert(`예약완료! \n예약자명: ${name} \n연락처: ${phone} \n예약날짜: ${date} \n예약지점: ${loc}
                 \n예약시간: ${times[selectedHours.startIndex].time} `);*/
-
-
-
-                } else {
-                    alert('모든 필드를 입력해 주세요.');
-                }
 
 
             });
@@ -164,7 +197,9 @@
                 {time: '23시', selected: false, noTime: false, realHour: 23},
                 {time: '', selected: false, noTime: true, realHour: 23.5},
                 // {time: '24시', selected: false, noTime: false, realHour: 24}
-            ]; //json으로 관리(시간되면)//
+            ];
+            //json으로 관리(시간되면)//
+
 
             let dt = new Date();
             //현재 시간을 받아줌(시간,분 까지만)
@@ -175,9 +210,7 @@
                 hour += 0.5;
             }
             let indexRange = [hour * 2, hour * 2 + 16];
-
             // 시간 항목 생성
-
             //  20241127    16           18
             //  상세날짜,시간(클릭 시작),시간(클릭 끝) => 고객별 중복선택 방지를 위함
             for (let outerIndex = indexRange[0]; outerIndex < indexRange[1] && outerIndex < times.length; outerIndex++) {
@@ -204,8 +237,9 @@
 
                 // 클릭 이벤트 처리
                 listItem.addEventListener('click', () => {
+                    alert("클릭")
                     let currentClickedTime = times[index].realHour;
-
+                    console.log("currentClickedTime=>"+currentClickedTime)
                     if (selectedHours.start < 0) {
                         selectedHours.start = currentClickedTime;
                         selectedHours.startIndex = index;
@@ -266,8 +300,13 @@
                 ulElement.innerHTML = '';
 
                 for (let innerIndex = startIndex; innerIndex < endIndex && innerIndex < times.length; innerIndex++) {
+                     // console.log("------------------------------");
+                     // console.log(innerIndex+"==============>"+startIndex);
+
                     let index = innerIndex % times.length;
+                    // console.log(index);
                     const item = times[index];
+                    // console.log("item=>"+item.time)
                     const listItem = document.createElement('li');
                     listItem.classList.add('time_item', 'half');
 
@@ -294,25 +333,99 @@
                     button.type = 'button';
                     button.classList.add('btn_time', 'color10');
 
+                    // // 클릭 이벤트 처리
+                    // listItem.addEventListener('click', () => {
+                    //     let currentClickedTime = times[index].realHour;
+                    //
+                    //     if (selectedHours.start < 0) {
+                    //         selectedHours.start = currentClickedTime;
+                    //         selectedHours.startIndex = index;
+                    //         // listItem.classList.add('selected');
+                    //     } else if (selectedHours.end < 0) {
+                    //         selectedHours.end = currentClickedTime;
+                    //         selectedHours.endIndex = index;
+                    //         // document.querySelectorAll("li.time_item.half").forEach((v, i) => {
+                    //         //     if (i >= selectedHours.startIndex && i <= selectedHours.endIndex)
+                    //         //         v.classList.add('selected');
+                    //         // });
+                    //         console.log("시간 정해짐", selectedHours)
+                    //     } else {
+                    //         selectedHours.start = currentClickedTime;
+                    //         selectedHours.startIndex = index;
+                    //         selectedHours.end = -1;
+                    //         selectedHours.endIndex = -1;
+                    //         // document.querySelectorAll("li.time_item.half").forEach((v) => {
+                    //         //     v.classList.remove('selected');
+                    //         // });
+                    //         // listItem.classList.add('selected');
+                    //     }
+                    //
+                    //     renderTimeList(startIndex, endIndex);
+                    //     console.log(times[index].realHour + " 누름");
+                    // });
+
+                    let barcount = selectedHours.endIndex - selectedHours.startIndex + 1;
+                    let sdate;
+                    let edate;
+                    //시작시간//
+
+                    let startdate;
+                    let enddate;
+                    // 생성된 요소들을 리스트 아이템에 추가
+                    // console.log(sdate);
+                    // console.log(edate);
+
+                    listItem.appendChild(timeText);
+                    listItem.appendChild(button);
+
+                    ulElement.appendChild(listItem);
                     // 클릭 이벤트 처리
                     listItem.addEventListener('click', () => {
                         let currentClickedTime = times[index].realHour;
-
+                        console.log("========================================")
+                        console.log(currentClickedTime)
                         if (selectedHours.start < 0) {
                             selectedHours.start = currentClickedTime;
-                            selectedHours.startIndex = index;
+                            selectedHours.startIndex = innerIndex;
                             // listItem.classList.add('selected');
                         } else if (selectedHours.end < 0) {
                             selectedHours.end = currentClickedTime;
-                            selectedHours.endIndex = index;
+                            selectedHours.endIndex = innerIndex;
                             // document.querySelectorAll("li.time_item.half").forEach((v, i) => {
                             //     if (i >= selectedHours.startIndex && i <= selectedHours.endIndex)
                             //         v.classList.add('selected');
                             // });
                             console.log("시간 정해짐", selectedHours)
+                            console.log(times[selectedHours.startIndex])
+                            console.log(times[selectedHours.startIndex].time)
+                            console.log(times[selectedHours.endIndex])
+                            console.log(times[selectedHours.endIndex].time)
+                            if(selectedHours.startIndex%2==0){
+                                //인덱스가 짝수인 경우
+                                // console.log(startIndex);
+                                // console.log("시간===>"+times[innerIndex]);
+                                // console.log("시간===>"+times[8].time);
+                                // console.log("시간===>"+times[innerIndex].time);
+                                sdate = times[selectedHours.startIndex].time;
+                                sdate = sdate.replace('시', ':') + '00';
+                            }else{
+                                //인덱스가 홀수인 경우
+                                sdate = times[selectedHours.startIndex-1].time+ '30분';
+                                sdate = sdate.replace('시', ':').replace('분', '');
+                            }
+                            //마지막시간//
+                            if(selectedHours.endIndex%2==0){
+                                //인덱스가 짝수인 경우
+                                edate = times[selectedHours.endIndex].time;
+                                edate = edate.replace('시', ':') + '00';
+                            }else{
+                                //인덱스가 홀수인 경우
+                                edate = times[selectedHours.endIndex-1].time+'30분';
+                                edate = edate.replace('시', ':').replace('분', '');
+                            }
                         } else {
                             selectedHours.start = currentClickedTime;
-                            selectedHours.startIndex = index;
+                            selectedHours.startIndex = innerIndex;
                             selectedHours.end = -1;
                             selectedHours.endIndex = -1;
                             // document.querySelectorAll("li.time_item.half").forEach((v) => {
@@ -321,17 +434,22 @@
                             // listItem.classList.add('selected');
                         }
 
+                        var startdate =  document.getElementById('date').value + ' ' + sdate;
+                        var enddate = document.getElementById('date').value+' '+edate;
                         renderTimeList(startIndex, endIndex);
                         console.log(times[index].realHour + " 누름");
+                        console.log(startdate)
+                        console.log(enddate)
+                        console.log("=================================")
+                        console.log("날짜:"+document.getElementById('date').value)
+                        console.log(sdate)
+                        console.log(edate)
+                        console.log(startdate)
+                        console.log(enddate)
+                        // localdatetime으로
+
                     });
 
-                    let barcount = selectedHours.endIndex - selectedHours.startIndex + 1;
-
-                    // 생성된 요소들을 리스트 아이템에 추가
-                    listItem.appendChild(timeText);
-                    listItem.appendChild(button);
-
-                    ulElement.appendChild(listItem)
                 }
             }
 
@@ -345,7 +463,6 @@
                 indexRange[1]--;
                 renderTimeList(...indexRange);
             })
-
         </script>
         <!-- 날짜 달력기능 스크립트 -->
         <script>
@@ -356,8 +473,9 @@
             var year = today.getFullYear();//전체 날짜를 받아와 줌
 
             var formattedDate = year + '-' + month + '-' + day;//날짜형식으로 포멧팅
-
+            console.log(formattedDate+":----------------------------")
             document.getElementById('date').setAttribute('min', formattedDate);
+
         </script>
         <!--지점설정 스크립트 -->
         <script>
@@ -386,6 +504,11 @@
                 }
                 document.getElementById("location-image").src = imagePath;
             }
+        </script>
+        <script>
+            //데이터포멧//
+
+            //데이터 통신//
         </script>
     </div>
 </body>

@@ -18,7 +18,7 @@ public class ReservationDTO {
     private int resvNum;
     private String branchName;
     private int barcount;
-    private LocalDateTime resvDate;
+    private  int status;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String userId;
